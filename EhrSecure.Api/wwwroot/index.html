@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMUNNATI - Secure Health Records</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="/images/logo.png" alt="SAMUNNATI" style="height: 60px; margin-bottom: 10px;">
+            <p>Secure Electronic Health Record System</p>
+        </header>
+
+        <!-- Landing Info Section -->
+        <div class="card landing-info">
+            <div class="info-grid">
+                <div class="info-box">
+                    <h3>🎯 Objectives</h3>
+                    <ul>
+                        <li>Centralized patient health records</li>
+                        <li>Role-based clinical workflows</li>
+                        <li>Patient consent management</li>
+                        <li>Complete audit trail</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h3>🔒 Security</h3>
+                    <ul>
+                        <li>AES-256-GCM encryption</li>
+                        <li>JWT authentication</li>
+                        <li>Role-based access control</li>
+                        <li>OTP for patient login</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h3>🛡️ Privacy</h3>
+                    <ul>
+                        <li>Patient-controlled consent</li>
+                        <li>Encrypted sensitive data</li>
+                        <li>Immutable audit logs</li>
+                        <li>No unauthorized access</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="login-section" class="card">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="staff-login-tab">Staff Login</button>
+                <button class="tab-btn" data-tab="patient-login-tab">Patient Portal</button>
+            </div>
+
+            <div id="staff-login-tab" class="tab-content active">
+                <h2>Staff Login</h2>
+                <p><em>For Admin, Doctor, Nurse, Receptionist</em></p>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="admin@ehr.local">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+
+            <div id="patient-login-tab" class="tab-content hidden">
+                <h2>Patient Portal Login</h2>
+                <p><em>Login with Patient ID and OTP only</em></p>
+                
+                <div id="otp-request-section">
+                    <form id="request-otp-form">
+                        <div class="form-group">
+                            <label for="patient-id-login">Patient ID or MRN</label>
+                            <input type="text" id="patient-id-login" required placeholder="Enter MRN (e.g., P001) or Patient ID">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Get OTP</button>
+                    </form>
+                </div>
+
+                <div id="otp-verify-section" class="hidden">
+                    <div id="otp-display" class="success"></div>
+                    <form id="otp-login-form">
+                        <div class="form-group">
+                            <label for="otp-code">Enter OTP</label>
+                            <input type="text" id="otp-code" required placeholder="6-digit OTP" maxlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" id="back-to-request" class="btn btn-secondary">Back</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="login-error" class="error hidden"></div>
+        </div>
+
+        <div id="dashboard" class="hidden">
+            <div class="user-info card">
+                <span id="user-email"></span>
+                <span id="user-role" class="badge"></span>
+                <button id="logout-btn" class="btn btn-secondary">Logout</button>
+            </div>
+
+            <!-- Admin Section -->
+            <div id="admin-section" class="hidden">
+                <div class="card">
+                    <h2>Admin Dashboard</h2>
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="users-tab">Users</button>
+                        <button class="tab-btn" data-tab="patients-tab">Patients</button>
+                        <button class="tab-btn" data-tab="audit-tab">Audit Logs</button>
+                    </div>
+
+                    <div id="users-tab" class="tab-content active">
+                        <h3>Create User</h3>
+                        <form id="create-user-form">
+                            <div class="form-row">
+                                <input type="email" id="new-user-email" required placeholder="Email">
+                                <input type="password" id="new-user-password" required placeholder="Password (12+ chars)">
+                                <select id="new-user-role" required>
+                                    <option value="">Select Role</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Doctor">Doctor</option>
+                                    <option value="Nurse">Nurse</option>
+                                    <option value="Patient">Patient</option>
+                                </select>
+                                <input type="text" id="new-user-patient-id" placeholder="Patient ID (if Patient role)">
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        </form>
+                        <h3>All Users</h3>
+                        <div id="users-list"></div>
+                    </div>
+
+                    <div id="patients-tab" class="tab-content hidden">
+                        <h3>Create Patient</h3>
+                        <form id="create-patient-form">
+                            <div class="form-row">
+                                <input type="text" id="patient-mrn" required placeholder="MRN (e.g., P001)">
+                                <input type="text" id="patient-name" required placeholder="Full Name">
+                                <input type="date" id="patient-dob" required>
+                                <select id="patient-gender" required>
+                                    <option value="">Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        </form>
+                        <div id="patients-list"></div>
+                    </div>
+
+                    <div id="audit-tab" class="tab-content hidden">
+                        <h3>Audit Logs</h3>
+                        <button id="refresh-audit" class="btn btn-secondary">Refresh</button>
+                        <div id="audit-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Section -->
+            <div id="doctor-section" class="hidden">
+                <div class="card">
+                    <h2>Doctor Dashboard</h2>
+                    
+                    <h3>📋 My Patients (Previously Attended)</h3>
+                    <div id="doctor-my-patients"></div>
+                    
+                    <hr style="margin: 20px 0; border-color: #e0e0e0;">
+                    
+                    <h3>🔍 Search Patient</h3>
+                    <div class="form-group">
+                        <label>Patient ID or MRN</label>
+                        <div class="form-row">
+                            <input type="text" id="doctor-patient-id" placeholder="Enter Patient ID or MRN (e.g., P001)">
+                            <button id="doctor-view-records" class="btn btn-primary">View Records</button>
+                        </div>
+                    </div>
+                    <div id="doctor-records"></div>
+                    
+                    <h3>Add New Record</h3>
+                    <form id="add-record-form">
+                        <div class="form-group">
+                            <label>Diagnosis</label>
+                            <textarea id="record-diagnosis" required placeholder="Enter diagnosis..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Prescriptions</label>
+                            <textarea id="record-prescriptions" required placeholder="Enter prescriptions..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Clinical Notes</label>
+                            <textarea id="record-notes" required placeholder="Enter clinical notes..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Nurse Section -->
+            <div id="nurse-section" class="hidden">
+                <div class="card">
+                    <h2>Nurse Dashboard</h2>
+                    <p><em>Read-only access to patient records (with consent)</em></p>
+                    <div class="form-group">
+                        <label>Patient ID</label>
+                        <div class="form-row">
+                            <input type="text" id="nurse-patient-id" placeholder="Enter Patient ID (GUID)">
+                            <button id="nurse-view-records" class="btn btn-primary">View Records</button>
+                        </div>
+                    </div>
+                    <div id="nurse-records"></div>
+                </div>
+            </div>
+
+            <!-- Receptionist Section -->
+            <div id="receptionist-section" class="hidden">
+                <div class="card">
+                    <h2>Receptionist Dashboard</h2>
+                    <p><em>Register patients and assign them to doctors</em></p>
+                    
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="register-patient-tab">Register Patient</button>
+                        <button class="tab-btn" data-tab="view-patients-tab">View Patients</button>
+                    </div>
+
+                    <div id="register-patient-tab" class="tab-content active">
+                        <h3>Register New Patient</h3>
+                        <form id="register-patient-form">
+                            <div class="form-group">
+                                <label>MRN (Medical Record Number)</label>
+                                <input type="text" id="reg-mrn" required placeholder="e.g., P003">
+                            </div>
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="reg-fullname" required placeholder="Patient full name">
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" id="reg-dob" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select id="reg-gender" required>
+                                    <option value="">Select...</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Assign to Doctor</label>
+                                <select id="reg-doctor">
+                                    <option value="">Select Doctor...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Contact Phone</label>
+                                <input type="tel" id="reg-phone" placeholder="Phone number">
+                            </div>
+                            <div class="form-group">
+                                <label>Contact Email</label>
+                                <input type="email" id="reg-email" placeholder="Email address">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Register Patient</button>
+                        </form>
+                        <div id="register-result"></div>
+                    </div>
+
+                    <div id="view-patients-tab" class="tab-content hidden">
+                        <h3>All Patients</h3>
+                        <button id="refresh-patients-list" class="btn btn-secondary">Refresh</button>
+                        <div id="patients-table"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Portal Section -->
+            <div id="patient-section" class="hidden">
+                <div class="card">
+                    <h2>Patient Portal</h2>
+                    <p><em>View your medical records (read-only)</em></p>
+                    
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="my-records-tab">My Records</button>
+                        <button class="tab-btn" data-tab="my-notifications-tab">Notifications <span id="notif-badge" class="notif-badge hidden">0</span></button>
+                        <button class="tab-btn" data-tab="my-consent-tab">Consent Settings</button>
+                    </div>
+
+                    <div id="my-records-tab" class="tab-content active">
+                        <div class="form-row">
+                            <button id="refresh-my-records" class="btn btn-secondary">Refresh</button>
+                            <button id="download-all-records" class="btn btn-primary">📥 Download All Records</button>
+                        </div>
+                        <div id="patient-records"></div>
+                    </div>
+
+                    <div id="my-notifications-tab" class="tab-content hidden">
+                        <div class="form-row">
+                            <button id="refresh-notifications" class="btn btn-secondary">Refresh</button>
+                            <button id="mark-all-read" class="btn btn-secondary">Mark All as Read</button>
+                        </div>
+                        <div id="notifications-list"></div>
+                    </div>
+
+                    <div id="my-consent-tab" class="tab-content hidden">
+                        <h3>Who can view your records?</h3>
+                        <form id="consent-form">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="allow-doctors"> Allow Doctors
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="allow-nurses"> Allow Nurses
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Consent</button>
+                        </form>
+                        <div id="consent-status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="message" class="hidden"></div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

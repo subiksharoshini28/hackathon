@@ -1,0 +1,8 @@
+wwwroot\css\style.css
+wwwroot\images\samunnati-logo.jfif
+wwwroot\index.html
+wwwroot\images\logo.png
+wwwroot\js\app.js
+E:\hackathon\EhrSecure.Api\wwwroot\js\app.js
+E:\hackathon\EhrSecure.Api\wwwroot\css\style.css
+E:\hackathon\EhrSecure.Api\wwwroot\index.html
